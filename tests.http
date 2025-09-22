@@ -1,0 +1,14 @@
+POST http://127.0.0.1:8000/generate
+Content-Type: application/json
+
+{
+    "width": 1000,
+    "height": 1000,
+    "format": "jpg",
+    "path": "kek.pdf",
+    "quality": 1,
+    "watermark": {
+        "height": 100,
+        "width": 100
+    }
+}
