@@ -1,3 +1,5 @@
+import math
+
 from pathlib import Path
 from typing import Literal
 from pydantic import BaseModel
@@ -82,7 +84,7 @@ def generate(params: GeneratorParams):
 
     target_path = Path(
         result_path.parent,
-        f'{result_path.stem}-wm.png'
+        f'{result_path.stem}-wm.jpg'
     )
 
     result_image.save(
@@ -173,20 +175,33 @@ def create_watermark(
     )
 
     watermark_image = watermark_image.rotate(
-        wm_params.rotate, resample=Image.Resampling.NEAREST, expand=True)
+        wm_params.rotate,
+        resample=Image.Resampling.NEAREST,
+        expand=True
+    )
 
     result_image = original_image.copy().convert('RGBA')
 
-    width_offset, height_offset = get_watermark_offset(
-        wm_params.position,
-        watermark_image,
-        result_image
-    )
+    if wm_params.repeat:
+        for i in range(math.ceil(result_image.width / watermark_image.width)):
+            for j in range(math.ceil(result_image.height / watermark_image.height)):
+                result_image.paste(
+                    watermark_image,
+                    (i * watermark_image.width, j * watermark_image.height),
+                    watermark_image
+                )
 
-    result_image.paste(
-        watermark_image,
-        (width_offset, height_offset),
-        watermark_image
-    )
+    else:
+        width_offset, height_offset = get_watermark_offset(
+            wm_params.position,
+            watermark_image,
+            result_image
+        )
 
-    return result_image
+        result_image.paste(
+            watermark_image,
+            (width_offset, height_offset),
+            watermark_image
+        )
+
+    return result_image.convert('RGB')
