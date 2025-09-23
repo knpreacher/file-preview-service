@@ -1,3 +1,4 @@
+from fastapi.responses import FileResponse
 from .generator.generate import GeneratorError, generate, GeneratorParams
 from .logger import logger
 from .config import AppConfig
@@ -22,7 +23,8 @@ app = FastAPI(
 @app.post("/generate")
 async def root(params: GeneratorParams):
     try:
-        return str(generate(params))
+        # return str(generate(params))
+        return FileResponse(generate(params))
     except GeneratorError as e:
         logger.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))

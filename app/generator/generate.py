@@ -13,12 +13,16 @@ class GeneratorError(Exception):
     pass
 
 
+WatermarkPosition = Literal['top_left', 'top_right',
+                            'bottom_left', 'bottom_right', 'center']
+
+
 class WatermarkParams(BaseModel):
     theme: Literal['dark', 'light', 'auto'] = 'auto'
     opacity: float = 0.5
     size: int = -1  # -1 = fill
-    position: Literal['top_left', 'top_right',
-                      'bottom_left', 'bottom_right', 'center'] = 'center'
+    rotate: int = 0
+    position: WatermarkPosition = 'center'
     repeat: bool = False
 
 
@@ -26,7 +30,7 @@ class GeneratorParams(BaseModel):
     width: int = 500
     height: int = 500
     format: str = 'jpeg'
-    quality: int = 1
+    quality: int = 100
     page: int = -1
 
     watermark: WatermarkParams | None
@@ -68,13 +72,27 @@ def generate(params: GeneratorParams):
 
     logger.info(f'Generated preview: {result_path}')
 
-    wm_result_path = create_watermark(
-        Path(result_path),
+    result_path = Path(result_path)
+
+    result_image = create_watermark(
+        result_path,
         params.watermark,
         config
     )
 
-    return wm_result_path
+    target_path = Path(
+        result_path.parent,
+        f'{result_path.stem}-wm.png'
+    )
+
+    result_image.save(
+        target_path,
+        subsampling=0,
+        quality=params.quality,
+        optimize=True
+    )
+
+    return target_path
 
 
 def _is_image_dark(image_path: Path, threshold: int = 50):
@@ -99,6 +117,23 @@ def get_watermark_image(
     return None
 
 
+def get_watermark_offset(
+    position: WatermarkPosition,
+    wm: Image,
+    image: Image
+):
+    if position == 'top_left':
+        return 0, 0
+    elif position == 'top_right':
+        return image.width - wm.width, 0
+    elif position == 'bottom_left':
+        return 0, image.height - wm.height
+    elif position == 'bottom_right':
+        return image.width - wm.width, image.height - wm.height
+    elif position == 'center':
+        return (image.width - wm.width) // 2, (image.height - wm.height) // 2
+
+
 def create_watermark(
     image_path: Path,
     wm_params: WatermarkParams,
@@ -115,23 +150,43 @@ def create_watermark(
     original_image = Image.open(image_path)
     watermark_image = Image.open(wm_path)
 
-    watermark_image = watermark_image.resize(
-        size=(original_image.width, original_image.height),
-        resample=Image.Resampling.LANCZOS
+    wm_aspect_ratio = watermark_image.width / watermark_image.height
+
+    wm_size = (
+        original_image.width if wm_params.size == -1 else int(wm_params.size),
+        int(original_image.width / wm_aspect_ratio) if wm_params.size == -
+        1 else int(wm_params.size / wm_aspect_ratio)
     )
 
-    result_image = original_image.copy()
+    watermark_image = watermark_image.resize(
+        size=wm_size,
+        resample=Image.Resampling.LANCZOS
+    ).convert('RGBA')
+
+    wm_c = watermark_image.copy()
+    wm_c.putalpha(
+        int(wm_params.opacity * 255)
+    )
+
+    watermark_image.paste(
+        wm_c, (0, 0), watermark_image
+    )
+
+    watermark_image = watermark_image.rotate(
+        wm_params.rotate, resample=Image.Resampling.NEAREST, expand=True)
+
+    result_image = original_image.copy().convert('RGBA')
+
+    width_offset, height_offset = get_watermark_offset(
+        wm_params.position,
+        watermark_image,
+        result_image
+    )
+
     result_image.paste(
         watermark_image,
-        original_image.getbbox(),
+        (width_offset, height_offset),
         watermark_image
     )
 
-    target_path = Path(
-        image_path.parent,
-        f'{image_path.stem}-wm.{image_path.suffix}'
-    )
-
-    result_image.save(target_path)
-
-    return target_path
+    return result_image

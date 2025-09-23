@@ -5,10 +5,11 @@ Content-Type: application/json
     "width": 1000,
     "height": 1000,
     "format": "jpg",
+    "quality": 10,
     "path": "kek.pdf",
-    "quality": 1,
     "watermark": {
-        "height": 100,
-        "width": 100
+        "rotate": -45,
+        "position": "center",
+        "opacity": 0.1
     }
 }
