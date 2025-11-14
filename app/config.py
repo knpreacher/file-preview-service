@@ -67,5 +67,7 @@ class Settings(BaseSettings):
     s3_region: str = cast(str, EnvProp(_default='us-east-1'))
     s3_bucket: str = cast(str, EnvProp(_default='general'))
 
- 
+    @property
+    def s3_endpoint_url(self) -> str:
+        return f'http{"s" if self.s3_secure else ""}://{self.s3_host}:{self.s3_port}'
 settings = Settings()

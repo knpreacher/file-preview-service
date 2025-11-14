@@ -1,4 +1,4 @@
-POST http://127.0.0.1:9311/generate
+POST http://127.0.0.1:9311/generate/file
 Content-Type: application/json
 
 {
@@ -25,7 +25,23 @@ Content-Type: application/json
 # }
 
 ###
+POST http://127.0.0.1:9311/generate/s3
+Content-Type: application/json
+
+{
+    "width": 500,
+    "height": 500,
+    "format": "jpg",
+    "quality": 20,
+    "path": "kek.docx",
+    "upload_to": "test/%(filename)s"
+}
+
+###
 GET http://127.0.0.1:9311/healthcheck
 
 ###
 POST http://127.0.0.1:9311/clean
+
+###
+GET http://127.0.0.1:9000/general

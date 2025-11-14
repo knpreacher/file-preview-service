@@ -1,5 +1,5 @@
 from fastapi.responses import FileResponse
-from .generator.generate import GeneratorError, generate, GeneratorParams
+from .generator import GeneratorError, FileGenerator, FileGeneratorParams, S3Generator, S3GeneratorParams
 from datetime import datetime
 from contextlib import asynccontextmanager
 from .logger import logger
@@ -44,15 +44,31 @@ app = FastAPI(
 )
 
 
-@app.post("/generate")
-async def generate_from_file(params: GeneratorParams):
+@app.post("/generate/file")
+async def generate_from_file(params: FileGeneratorParams):
     try:
-        # return str(generate(params))
-        return FileResponse(generate(params))
+        return FileResponse(await FileGenerator(params).generate())
     except GeneratorError as e:
         logger.error(str(e))
         raise HTTPException(status_code=400, detail=str(e))
-    # return {"message": "Hello World"}
+
+
+@app.post("/generate/s3")
+async def generate_from_file(params: S3GeneratorParams):
+    try:
+        # return str(generate(params))
+        generator = S3Generator(params)
+        res = await generator.generate()
+        logger.info(f'Generated file: {res}')
+        if params.upload_to:
+            _upload_path = await generator.upload(res)
+            logger.info(f'File uploaded to S3: {_upload_path}')
+            return _upload_path
+        else:
+            return FileResponse(res)
+    except GeneratorError as e:
+        logger.error(str(e))
+        raise HTTPException(status_code=400, detail=str(e))
 
 @app.get("/healthcheck")
 async def healthcheck():

@@ -1,0 +1,47 @@
+services:
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  fps:
+    container_name: fps
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.example
+    volumes:
+      - local_data:/opt/fps_data
+    links:
+      - "minio:minio"
+    ports:
+      - "9311:9311"
+
+volumes:
+  local_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data
+
+  minio_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data/minio
+

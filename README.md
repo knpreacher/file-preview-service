@@ -15,8 +15,15 @@ docker run -v ./data/:/opt/fps_data/ -p 9311:9311 -it file-preview-service
 
 ```bash
 docker build -t file-preview-service .
-
 docker run --env-file .env.example -v ./data/:/opt/fps_data/ -p 9311:9311 -it file-preview-service
+```
+
+## Build & publish
+
+```bash
+docker build -t file-preview-service .
+docker tag file-preview-service knpreacher/file-preview-service
+docker push knpreacher/file-preview-service
 ```
 
 
