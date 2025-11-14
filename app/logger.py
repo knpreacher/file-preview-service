@@ -1,3 +1,3 @@
 import logging
 
-logger = logging.getLogger("fastapi_cli")
+logger = logging.getLogger("uvicorn.access")

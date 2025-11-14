@@ -1,4 +1,4 @@
-POST http://127.0.0.1:8000/generate
+POST http://127.0.0.1:9311/generate
 Content-Type: application/json
 
 {
@@ -6,12 +6,26 @@ Content-Type: application/json
     "height": 500,
     "format": "jpg",
     "quality": 20,
-    "path": "kek.pdf",
-    "watermark": {
-        "size": 100,
-        "repeat": true,
-        "rotate": -45,
-        "position": "center",
-        "opacity": 0.2
-    }
+    "path": "kek.pdf"
 }
+
+# {
+#     "width": 1000,
+#     "height": 1000,
+#     "format": "jpg",
+#     "quality": 20,
+#     "path": "kek.pdf",
+#     "watermark": {
+#         "size": 100,
+#         "repeat": true,
+#         "rotate": -45,
+#         "position": "center",
+#         "opacity": 0.05
+#     }
+# }
+
+###
+GET http://127.0.0.1:9311/healthcheck
+
+###
+POST http://127.0.0.1:9311/clean

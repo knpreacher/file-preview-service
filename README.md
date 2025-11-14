@@ -8,8 +8,17 @@
 
 ```bash
 docker build -t file-preview-service .
-docker run -v ./data/:/opt/fps_data/ -p 8000:8000 -it file-preview-service
+docker run -v ./data/:/opt/fps_data/ -p 9311:9311 -it file-preview-service
 ```
+
+## Local/debug run
+
+```bash
+docker build -t file-preview-service .
+
+docker run --env-file .env.example -v ./data/:/opt/fps_data/ -p 9311:9311 -it file-preview-service
+```
+
 
 ## Environment variables
 
@@ -47,6 +56,17 @@ docker run -v ./data/:/opt/fps_data/ -p 8000:8000 -it file-preview-service
 
 ---
 
+### `FPS_AUTOCLEAN_INERVAL`
+- **Type**: Integer
+- **Default**: `0`
+- **Description**: Specifies the interval (in seconds) at which FPS will automatically clean up old preview files and assets from the cache. Set to `0` to disable automatic cleanup.
+- **Example**:
+  ```bash
+  FPS_AUTOCLEAN_INTERVAL=3600 # 1 hour
+  ```
+
+---
+
 ### `FPS_WATERMARK_LIGHT_PATH`
 - **Type**: Filesystem Path (String)
 - **Optional**: Yes
@@ -79,6 +99,82 @@ docker run -v ./data/:/opt/fps_data/ -p 8000:8000 -it file-preview-service
   ```
 
 ---
+
+### `FPS_S3_SECURE`
+- **Type**: Boolean (`true` / `false`)
+- **Default**: `false`
+- **Description**: Specifies whether the S3 storage is secure (HTTPS) or not.
+- **Example**:
+  ```bash
+  FPS_S3_SECURE=true
+  ```
+
+---
+
+### `FPS_S3_HOST`
+- **Type**: String
+- **Default**: `127.0.0.1`
+- **Description**: Specifies the hostname or IP address of the S3 storage server.
+- **Example**:
+  ```bash
+  FPS_S3_HOST=127.0.0.1
+  ```
+
+---
+
+### `FPS_S3_PORT`
+- **Type**: Integer
+- **Default**: `9000`
+- **Description**: Specifies the port number of the S3 storage server.
+- **Example**:
+  ```bash
+  FPS_S3_PORT=9000
+  ```
+
+---
+
+### `FPS_S3_ACCESS_KEY`
+- **Type**: String
+- **Default**: `minioadmin`
+- **Description**: Specifies the access key for accessing the S3 storage.
+- **Example**:
+  ```bash
+  FPS_S3_ACCESS_KEY=minioadmin
+  ```
+
+---
+
+### `FPS_S3_SECRET_KEY`
+- **Type**: String
+- **Default**: `minioadmin`
+- **Description**: Specifies the secret key for accessing the S3 storage.
+- **Example**:
+  ```bash
+  FPS_S3_SECRET_KEY=minioadmin
+  ```
+
+---
+
+### `FPS_S3_REGION`
+- **Type**: String
+- **Default**: `us-east-1`
+- **Description**: Specifies the region of the S3 storage.
+- **Example**:
+  ```bash
+  FPS_S3_REGION=us-east-1
+  ```
+
+---
+
+### `FPS_S3_BUCKET`
+- **Type**: String
+- **Default**: `general`
+- **Description**: Specifies the bucket name in the S3 storage.
+- **Example**:
+  ```bash
+  FPS_S3_BUCKET=general
+  ```
+
 
 ## Example Configuration
 

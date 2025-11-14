@@ -1,10 +1,10 @@
 import math
 
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 from pydantic import BaseModel
 from ..logger import logger
-from ..config import AppConfig
+from ..config import settings, Settings
 
 from PIL import Image, ImageStat
 
@@ -35,12 +35,12 @@ class GeneratorParams(BaseModel):
     quality: int = 100
     page: int = -1
 
-    watermark: WatermarkParams | None
+    watermark: Optional[WatermarkParams] = None
 
     path: str
 
 
-def _validate_paths(params: GeneratorParams, config: AppConfig) -> Path:
+def _validate_paths(params: GeneratorParams, config: Settings) -> Path:
     document_path = Path(config.document_root) / params.path
     if not document_path.exists():
         raise GeneratorError(f'File not found: {document_path}')
@@ -55,10 +55,9 @@ def _validate_paths(params: GeneratorParams, config: AppConfig) -> Path:
 
 
 def generate(params: GeneratorParams):
-    config = AppConfig()
+    config = Settings()
     logger.info("Requested generator params: " + str(params))
     document_path = _validate_paths(params, config)
-    logger.info(f"Generating preview for {document_path}")
 
     manager = PreviewManager(
         str(config.cache_root),
@@ -75,6 +74,9 @@ def generate(params: GeneratorParams):
     logger.info(f'Generated preview: {result_path}')
 
     result_path = Path(result_path)
+    
+    if params.watermark is None:
+        return result_path
 
     result_image = create_watermark(
         result_path,
@@ -106,7 +108,7 @@ def _is_image_dark(image_path: Path, threshold: int = 50):
 
 def get_watermark_image(
     theme: Literal['dark', 'light'],
-    config: AppConfig
+    config: Settings
 ):
     themed_wm_path = getattr(config, f'watermark_{theme}_path')
     if themed_wm_path and Path(themed_wm_path).is_file():
@@ -139,7 +141,7 @@ def get_watermark_offset(
 def create_watermark(
     image_path: Path,
     wm_params: WatermarkParams,
-    config: AppConfig
+    config: Settings
 ):
     theme = wm_params.theme
     if theme == 'auto':
