@@ -2,7 +2,7 @@ import os
 from typing import TypeVar, Generic, cast
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
-from .logger import logger
+from logger import logger
 
 ENV_PREFIX = 'FPS_'
 

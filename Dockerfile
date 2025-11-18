@@ -26,4 +26,5 @@ RUN chmod +x entrypoint.sh
 
 ENTRYPOINT [ "./entrypoint.sh" ]
 
-CMD ["fastapi", "run", "--host", "0.0.0.0", "--port", "9311"]
+# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9311"]
+CMD ["python3", "main.py"]

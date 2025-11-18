@@ -3,10 +3,10 @@ import mimetypes
 from typing import Optional
 from pathlib import Path
 
-from ...utils.s3_clent import S3Client
-from ...logger import logger
+from utils.s3_clent import S3Client
+from logger import logger
 
-from ..base import BaseGenerator, GeneratorParams, GeneratorError
+from generator.base import BaseGenerator, GeneratorParams, GeneratorError
 
 class S3GeneratorParams(GeneratorParams):
     path: str

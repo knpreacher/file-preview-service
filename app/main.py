@@ -1,19 +1,19 @@
 from fastapi.responses import FileResponse
-from .generator import GeneratorError, FileGenerator, FileGeneratorParams, S3Generator, S3GeneratorParams
+from generator import GeneratorError, FileGenerator, FileGeneratorParams, S3Generator, S3GeneratorParams
 from datetime import datetime
 from contextlib import asynccontextmanager
-from .logger import logger
-from .config import settings
+from logger import logger
+from config import settings
 from fastapi import FastAPI, HTTPException
 
 import schedule
 
-from .utils.cleaner import delete_files
-from .utils.scheduler import run_continuously
+from utils.cleaner import delete_files
+from utils.scheduler import run_continuously
 
-from fastapi_cli.logging import setup_logging
+# from fastapi_cli.logging import setup_logging
 
-setup_logging()
+# setup_logging()
 
 def delete_files_job():
     logger.info('[AUTO] Cleaning cache...')
@@ -28,20 +28,23 @@ async def lifespan(app: FastAPI):
     start_date = datetime.now()
     logger.info('Service started at ' + str(start_date))
     logger.info('Current config: ' + str(settings))
-    if settings.autoclean_inerval > 0:
-        logger.info('>>>>> Autoclean enabled <<<<<')
-        logger.info(f'Cleaning cache every {settings.autoclean_inerval} seconds')
+    # if settings.autoclean_inerval > 0:
+    #     logger.info('>>>>> Autoclean enabled <<<<<')
+    #     logger.info(f'Cleaning cache every {settings.autoclean_inerval} seconds')
     
-    schedule.every(settings.autoclean_inerval).seconds.do(delete_files_job)
-    stop_run_continuously = run_continuously()
+    #     schedule.every(settings.autoclean_inerval).seconds.do(delete_files_job)
+    #     stop_run_continuously = run_continuously()
     yield
-    stop_run_continuously.set()
+    # if settings.autoclean_inerval > 0:
+    #     stop_run_continuously.set()
     logger.info('Service stopped at ' + str(datetime.now()))
 
 app = FastAPI(
     lifespan=lifespan,
     debug=settings.debug
 )
+
+print(">>>>>>> APP", app)
 
 
 @app.post("/generate/file")
@@ -83,4 +86,12 @@ async def clean():
     }
 
 if __name__ == "__main__":
-    pass
+    import uvicorn
+
+    uvicorn.run(
+        'main:app',
+        host='0.0.0.0',
+        port=9311,
+        reload=False,
+    )
+

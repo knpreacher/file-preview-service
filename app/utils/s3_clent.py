@@ -1,8 +1,8 @@
 import aioboto3
 from botocore.exceptions import ClientError
 
-from ..logger import logger
-from ..config import Settings, settings as _settings
+from logger import logger
+from config import Settings, settings as _settings
 
 session = aioboto3.Session()
 

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from ..base import BaseGenerator, GeneratorParams, GeneratorError
+from generator.base import BaseGenerator, GeneratorParams, GeneratorError
 
 class FileGeneratorParams(GeneratorParams):
     path: str

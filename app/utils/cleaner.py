@@ -3,7 +3,7 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from ..logger import logger
+from logger import logger
 
 def list_recent_files(directory: os.PathLike='.', age_seconds=60):
     """

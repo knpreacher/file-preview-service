@@ -3,8 +3,8 @@ import math
 from pathlib import Path
 from typing import Literal, Optional, Generic, TypeVar
 from pydantic import BaseModel
-from ..logger import logger
-from ..config import settings, Settings
+from logger import logger
+from config import settings, Settings
 
 from PIL import Image, ImageStat
 
